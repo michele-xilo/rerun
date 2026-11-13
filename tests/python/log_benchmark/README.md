@@ -71,9 +71,24 @@ You can then compare using the `pytest-benchmark` CLI:
 uv run pytest-benchmark compare 0001 0002
 ```
 
+## Per-archetype comparison
+
+`bench_all_archetypes.py` measures `construct + rr.log` per call (µs) for ~20 archetypes, from tiny numeric ones to large images.
+Run it on each build and compare:
+
+```bash
+pixi run py-build-release
+pixi run uvpy tests/python/log_benchmark/bench_all_archetypes.py --out before.json
+# switch branch, rebuild, then:
+pixi run uvpy tests/python/log_benchmark/bench_all_archetypes.py --out after.json
+pixi run uvpy tests/python/log_benchmark/bench_all_archetypes.py --compare before.json after.json
+```
+
+Use release builds, and run both back to back on an idle machine, since run-to-run drift is a few percent.
 
 ## Test files
 
 - `__init__.py` — Shared data classes (`Point3DInput`, `Transform3DInput`)
 - `test_log_benchmark.py` — Throughput benchmarks
 - `test_micro_benchmark.py` — Per-call overhead micro-benchmarks
+- `bench_all_archetypes.py` — Per-archetype `construct + rr.log` cost, with A/B compare
